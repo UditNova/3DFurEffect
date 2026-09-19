@@ -12,42 +12,49 @@ const FurryTorus = () => {
 
     const time = state.clock.getElapsedTime();
 
-    /*
-      Slow rotation
-    */
     group.current.rotation.y = time * 0.18;
 
-    /*
-      Small tilt
-    */
     group.current.rotation.x = Math.sin(time * 0.35) * 0.12;
 
     group.current.rotation.z = Math.cos(time * 0.25) * 0.04;
 
-    /*
-      Floating movement
-    */
     group.current.position.y = Math.sin(time * 0.7) * 0.12;
   });
 
   return (
     <group ref={group} position={[0, 0, 0]}>
-      <mesh>
-        <torusGeometry
-          args={[
-            2.0, // radius
-            0.62, // tube thickness
-            64, // radial segments
-            128, // tubular segments
-          ]}
-        />
+      {/* Base torus */}
 
-        <meshStandardMaterial
-          color={new THREE.Color("#8b3dcc")}
-          roughness={0.55}
-          metalness={0.05}
-        />
+      <mesh>
+        <torusGeometry args={[2.0, 0.62, 64, 128]} />
+
+        <meshStandardMaterial color="#7c2db5" roughness={0.7} metalness={0} />
       </mesh>
+
+      {/* Fur layers */}
+
+      {Array.from({ length: 10 }).map((_, index) => {
+        const scale = 1 + index * 0.012;
+
+        return (
+          <mesh key={index} scale={[scale, scale, scale]}>
+            <torusGeometry args={[2.0, 0.62, 48, 96]} />
+
+            <meshBasicMaterial
+              color={
+                new THREE.Color(
+                  `hsl(${270 + index * 2}, 65%, ${35 + index * 2}%)`
+                )
+              }
+              transparent
+              opacity={0.055}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+            />
+          </mesh>
+        );
+      })}
     </group>
   );
 };
